@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kube-dns-autoscaler
+  namespace: kube-system
+data:
+  # "preventSinglePointFailure": false to allow just one pod
+  linear: '{"coresPerReplica":256,"nodesPerReplica":16,"preventSinglePointFailure":false}'
