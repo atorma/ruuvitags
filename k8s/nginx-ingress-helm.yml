@@ -159,16 +159,22 @@ controller:
 
     ## List of IP addresses at which the controller services are available
     ## Ref: https://kubernetes.io/docs/user-guide/services/#external-ips
-    ##
-    externalIPs: []
+    
+    ## To direct external traffic to ClusterIP in GKE, must use internal IPs of the VMs:
+    ## https://serverfault.com/questions/801189/expose-port-80-and-443-on-google-container-engine-without-load-balancer.
+    ## Remember to allow tcp to 80 and 443 to your GKE VMs!
+    ## In GCE, there are default firewall rules for these, but you must add the matching tags (http-server, https-server) to 
+    ## your VM instances. Just edit the VM instance and check the two checkboxes under Firewalls.
+    externalIPs: ["10.132.0.3"]
 
-    loadBalancerIP: "104.155.118.38"
+    loadBalancerIP: ""
     loadBalancerSourceRanges: []
 
     ## Set external traffic policy to: "Local" to preserve source IP on
     ## providers supporting it
     ## Ref: https://kubernetes.io/docs/tutorials/services/source-ip/#source-ip-for-services-with-typeloadbalancer
-    externalTrafficPolicy: "Local"
+    # Cannot use "Local" when service type is ClusterIP
+    externalTrafficPolicy: ""
 
     healthCheckNodePort: 0
 
@@ -176,7 +182,10 @@ controller:
       http: http
       https: https
 
-    type: LoadBalancer
+    # Not using LoadBalancer to save the cost of GKE load balancing ($18/month!).
+    # If you try to upgrade a deployment from LoadBalancer to ClusterIP, k8s will complain about nodePorts. 
+    # Then delete the helm release and install from scratch.
+    type: ClusterIP
 
     # type: NodePort
     # nodePorts:
