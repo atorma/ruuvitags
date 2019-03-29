@@ -5,7 +5,7 @@ controller:
   name: controller
   image:
     repository: quay.io/kubernetes-ingress-controller/nginx-ingress-controller
-    tag: "0.15.0"
+    tag: "0.19.0"
     pullPolicy: IfNotPresent
 
   config:
@@ -165,7 +165,7 @@ controller:
     ## Remember to allow tcp to 80 and 443 to your GKE VMs!
     ## In GCE, there are default firewall rules for these, but you must add the matching tags (http-server, https-server) to 
     ## your VM instances. Just edit the VM instance and check the two checkboxes under Firewalls.
-    externalIPs: ["10.132.0.3"]
+    externalIPs: ["10.132.0.2"]
 
     loadBalancerIP: ""
     loadBalancerSourceRanges: []
