@@ -1,0 +1,115 @@
+# No service! Has hostNetwork: true so the pod listens to http(s) traffic on the host.
+# Source IPs of requests are preserved, no GCP load balancer is needed. 
+# In GCP you must configure firewall rules to allow tcp traffic to ports 80 and 443 to the deployment target VMs.
+# Must be deployed to an "ingress" node pool with no other pods (except kube-proxy and fluentd-gcp).
+# This is done by labelling the node pool by "ingress" and tainting the pool by 
+# key = ingress, value = true, effect = NO_EXECUTE.
+# This deployment has nodeSelector and tolerations that allow it to be deployed in the "ingress" pool.
+# Source: https://charlieegan3.com/posts/2018-08-15-cheap-gke-cluster-zero-loadbalancers/
+
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    app: nginx-ingress
+    chart: nginx-ingress-0.20.1
+    component: controller
+    heritage: Tiller
+    release: nginx
+  name: nginx-nginx-ingress-controller
+  namespace: default
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: nginx-ingress
+      component: controller
+      release: nginx
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: nginx-ingress
+        component: controller
+        release: nginx
+    spec:
+      containers:
+      - args:
+        - /nginx-ingress-controller
+        - --default-backend-service=default/nginx-nginx-ingress-default-backend
+        - --election-id=ingress-controller-leader
+        - --ingress-class=nginx
+        - --configmap=default/nginx-nginx-ingress-controller
+        env:
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.name
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.namespace
+        image: quay.io/kubernetes-ingress-controller/nginx-ingress-controller:0.23.0
+        imagePullPolicy: IfNotPresent
+        livenessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /healthz
+            port: 10254
+            scheme: HTTP
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 1
+        name: nginx-ingress-controller
+        ports:
+        - containerPort: 80
+          hostPort: 80
+          name: http
+          protocol: TCP
+        - containerPort: 443
+          hostPort: 443
+          name: https
+          protocol: TCP
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /healthz
+            port: 10254
+            scheme: HTTP
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 1
+        resources:
+          limits:
+            cpu: 50m
+            memory: 256Mi
+          requests:
+            cpu: 10m
+            memory: 128Mi
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+      dnsPolicy: ClusterFirst
+      hostNetwork: true
+      nodeSelector:
+        ingress: "true"
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      serviceAccount: nginx-nginx-ingress
+      serviceAccountName: nginx-nginx-ingress
+      terminationGracePeriodSeconds: 60
+      tolerations:
+      - effect: NoExecute
+        key: ingress
+        value: "true"
