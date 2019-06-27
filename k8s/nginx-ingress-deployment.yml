@@ -6,6 +6,10 @@
 # key = ingress, value = true, effect = NO_EXECUTE.
 # This deployment has nodeSelector and tolerations that allow it to be deployed in the "ingress" pool.
 # Source: https://charlieegan3.com/posts/2018-08-15-cheap-gke-cluster-zero-loadbalancers/
+#
+# Note! A GKE f1-micro instance may not support even one nginx-ingress-controller. If you experience frequent
+# crashing, either update to f1-small or try turning off logging and monitoring to make as much CPU and memory available
+# as possible.
 
 apiVersion: extensions/v1beta1
 kind: Deployment
