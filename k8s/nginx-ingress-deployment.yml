@@ -58,7 +58,7 @@ spec:
             fieldRef:
               apiVersion: v1
               fieldPath: metadata.namespace
-        image: quay.io/kubernetes-ingress-controller/nginx-ingress-controller:0.23.0
+        image: quay.io/kubernetes-ingress-controller/nginx-ingress-controller:0.24.1
         imagePullPolicy: IfNotPresent
         livenessProbe:
           failureThreshold: 3
@@ -99,7 +99,7 @@ spec:
             memory: 128Mi
         terminationMessagePath: /dev/termination-log
         terminationMessagePolicy: File
-      dnsPolicy: ClusterFirst
+      dnsPolicy: ClusterFirstWithHostNet
       hostNetwork: true
       nodeSelector:
         ingress: "true"
