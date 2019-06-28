@@ -1,120 +1,20 @@
 ## influxdb image version
 ## ref: https://hub.docker.com/r/library/influxdb/tags/
 image:
-  repo: "influxdb"
-  tag: "1.5-alpine"
+  repository: "influxdb"
+  tag: "1.7.6-alpine"
   pullPolicy: IfNotPresent
 
-## Specify a service type
-## NodePort is default
-## ref: http://kubernetes.io/docs/user-guide/services/
-##
-service:
-  ## Add annotations to service
-  # annotations: {}
-  type: ClusterIP
-  ## Add IP Cluster
-  # clusterIP: ""
-  ## Add external IPs that route to one or more cluster nodes
-  # externalIPs: []
-  ## Specify LoadBalancer IP (only allow on some cloud provider)
-  # loadBalancerIP: ""
-  ## Allow source IPs to access on service (if empty, any access allow)
-  # loadBalancerSourceRanges: []
-
-## Persist data to a persistent volume
-##
-persistence:
-  enabled: true
-  ## If true will use an existing PVC instead of creating one
-  # useExisting: true
-  ## Name of existing PVC to be used in the influx deployment
-  # name: "influxdb"
-  ## influxdb data Persistent Volume Storage Class
-  ## If defined, storageClassName: <storageClass>
-  ## If set to "-", storageClassName: "", which disables dynamic provisioning
-  ## If undefined (the default) or set to null, no storageClassName spec is
-  ##   set, choosing the default provisioner.  (gp2 on AWS, standard on
-  ##   GKE, AWS & OpenStack)
-  ##
-  storageClass: "pd-ssd-retained"
-  accessMode: ReadWriteOnce
-  size: 1Gi
-
-## Create default user through Kubernetes job
-## Defaults indicated below
-##
-setDefaultUser:
-  enabled: true
-
-  ## Image of the container used for job
-  ## Default: appropriate/curl:latest
-  ##
-  image: appropriate/curl:latest
-
-  ## Deadline for job so it does not retry forever.
-  ## Default: activeDeadline: 300
-  ##
-  activeDeadline: 300
-
-  ## Restart policy for job
-  ## Default: OnFailure
-  restartPolicy: OnFailure
-
-  user:
-
-    ## The user name
-    ## Default: "admin"
-    # username: "redacted"
-
-    ## User password
-    ## single quotes must be escaped (\')
-    ## Default: (Randomly generated 10 characters of AlphaNum)
-    # password: "redacted"
-
-    ## User privileges
-    ## Default: "WITH ALL PRIVILEGES"
-    # privileges: "WITH ALL PRIVILEGES"
-
-## Configure resource requests and limits
-## ref: http://kubernetes.io/docs/user-guide/compute-resources/
-resources:
-  requests:
-    memory: 100Mi
-    cpu: 20m
-  limits:
-    memory: 400Mi
-    cpu: 500m
-
-ingress:
-  enabled: true
-  tls: true
-  # only needed if tls above is true
-  secretName: influxdb-certificate-secret 
-  hostname: influxdb.atorma.fi
-  annotations:
-     kubernetes.io/ingress.class: "nginx"
-    # kubernetes.io/tls-acme: "true"
-
-## Node labels for pod assignment
-## Ref: https://kubernetes.io/docs/user-guide/node-selection/
-##
-nodeSelector: {}
-
-## The InfluxDB image uses several environment variables to automatically
-## configure certain parts of the server.
-## Ref: https://hub.docker.com/_/influxdb/
-env:
-  - name: INFLUXDB_DB
-    value: "ruuvitags"
 
 ## Change InfluxDB configuration parameters below:
 ## Defaults are indicated
 ## ref: https://docs.influxdata.com/influxdb/v1.1/administration/config/
 config:
   reporting_disabled: false
-  bind_address: 8088
   storage_directory: /var/lib/influxdb
+  rpc:
+    enabled: true
+    bind_address: 8088
   meta:
     retention_autocreate: true
     logging_enabled: true
@@ -227,3 +127,7 @@ config:
     log_enabled: true
     enabled: true
     run_interval: 1s
+  logging:
+    format: auto
+    level: info
+    supress_logo: false
