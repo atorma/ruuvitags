@@ -1,0 +1,4 @@
+image:
+  repository: grafana/grafana
+  tag: 6.6.2
+  pullPolicy: IfNotPresent
