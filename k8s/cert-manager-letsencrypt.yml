@@ -1,21 +1,20 @@
-apiVersion: certmanager.k8s.io/v1alpha1
+apiVersion: cert-manager.io/v1
 kind: ClusterIssuer
 metadata:
   name: letsencrypt-prod
-  namespace: default
+  namespace: cert-manager
 spec:
   acme:
-    # The ACME server URL
     server: https://acme-v02.api.letsencrypt.org/directory
-    # Email address used for ACME registration
     # email: redacted
-    # Name of a secret used to store the ACME account private key
     privateKeySecretRef:
       name: letsencrypt-prod
-    # Enable HTTP01 validations
-    http01: {}
+    solvers:
+    - http01:
+        ingress:
+          class: nginx
 ---
-apiVersion: certmanager.k8s.io/v1alpha1
+apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
   name: grafana-certificate
@@ -24,17 +23,11 @@ spec:
   secretName: grafana-certificate-secret
   dnsNames:
   - grafana.atorma.fi
-  acme:
-    config:
-    - http01:
-        ingressClass: nginx
-      domains:
-      - grafana.atorma.fi
   issuerRef:
     name: letsencrypt-prod
     kind: ClusterIssuer
 ---
-apiVersion: certmanager.k8s.io/v1alpha1
+apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
   name: influxdb-certificate
@@ -43,12 +36,6 @@ spec:
   secretName: influxdb-certificate-secret
   dnsNames:
   - influxdb.atorma.fi
-  acme:
-    config:
-    - http01:
-        ingressClass: nginx
-      domains:
-      - influxdb.atorma.fi
   issuerRef:
     name: letsencrypt-prod
     kind: ClusterIssuer
