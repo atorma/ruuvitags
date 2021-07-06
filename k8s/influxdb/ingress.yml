@@ -1,0 +1,22 @@
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  annotations:
+    kubernetes.io/ingress.class: nginx
+  labels:
+    app: influxdb
+  name: influxdb
+  namespace: default
+spec:
+  rules:
+    - host: influxdb.atorma.fi
+      http:
+        paths:
+          - backend:
+              serviceName: influxdb
+              servicePort: 8086
+            path: /
+  tls:
+    - hosts:
+        - influxdb.atorma.fi
+      secretName: influxdb-certificate-secret

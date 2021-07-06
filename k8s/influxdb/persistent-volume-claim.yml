@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  annotations:
+    pv.kubernetes.io/bind-completed: "yes"
+    pv.kubernetes.io/bound-by-controller: "yes"
+    volume.beta.kubernetes.io/storage-provisioner: kubernetes.io/gce-pd
+    volume.kubernetes.io/storage-resizer: kubernetes.io/gce-pd
+  finalizers:
+    - kubernetes.io/pvc-protection
+  labels:
+    app: influxdb
+  name: influxdb-influxdb
+  namespace: default
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+  storageClassName: pd-ssd-retained
+  volumeMode: Filesystem
+  volumeName: pvc-93dda3f4-67c0-11e8-ae8f-42010a840150
