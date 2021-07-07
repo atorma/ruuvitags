@@ -1,0 +1,34 @@
+# Stop/delete influxdb deployment before running this
+# To follow progress: "kubectl logs -f influxdb-tsi-rebuild"
+# The last log entry will be "Are you sure you want to continue? (y/N)". Actually the process is done.
+# You can now redeploy InfluxDB.
+apiVersion: v1
+kind: Pod
+metadata:
+  name: influxdb-tsi-rebuild
+  namespace: default
+spec:
+  containers:
+    - name: influxdb
+      image: influxdb:1.8.6-alpine
+      imagePullPolicy: IfNotPresent
+      env:
+        - name: INFLUXDB_DB
+          value: ruuvitags
+      terminationMessagePath: /dev/termination-log
+      terminationMessagePolicy: File
+      volumeMounts:
+        - mountPath: /var/lib/influxdb
+          name: data
+        - mountPath: /etc/influxdb
+          name: config
+      command: ["sh", "-c", "rm -rf /var/lib/influxdb/data/*/*/*/index && yes | influx_inspect buildtsi -datadir /var/lib/influxdb/data -waldir /var/lib/influxdb/wal"]
+  restartPolicy: Never
+  volumes:
+    - name: data
+      persistentVolumeClaim:
+        claimName: influxdb-influxdb
+    - configMap:
+        defaultMode: 420
+        name: influxdb
+      name: config
