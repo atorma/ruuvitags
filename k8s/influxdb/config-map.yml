@@ -16,6 +16,7 @@ data:
       logging-enabled = true
 
     [data]
+      index-version = "tsi1"
       dir = "/var/lib/influxdb/data"
       wal-dir = "/var/lib/influxdb/wal"
       query-log-enabled = true

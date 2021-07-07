@@ -24,7 +24,7 @@ spec:
     spec:
       containers:
         - name: influxdb
-          image: influxdb:1.7.9-alpine
+          image: influxdb:1.8.6-alpine
           imagePullPolicy: IfNotPresent
           env:
             - name: INFLUXDB_DB
