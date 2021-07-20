@@ -22,7 +22,7 @@ spec:
         # has taints that prevent deployment without tolerations, so this 
         # deployment is not run there.
         # nodeSelector:
-          # cloud.google.com/gke-nodepool: pool-kubip
+          # cloud.google.com/gke-nodepool: pool-kubeip
         containers:
         - name: "kubeip"
           image: doitintl/kubeip:latest
