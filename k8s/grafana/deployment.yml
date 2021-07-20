@@ -45,9 +45,6 @@ spec:
               name: grafana
               protocol: TCP
           resources:
-            limits:
-              cpu: 50m
-              memory: 200Mi
             requests:
               cpu: 5m
               memory: 30Mi
