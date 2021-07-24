@@ -1,7 +1,7 @@
-# NOTE! Custom
-# - ConfigMap data
-# - Deployment tolerations, dnsPolicy, hostNetwork, resources.requests
-
+# NOTE! Has several changes from defaults.
+# - ConfigMap
+# - Deployment
+# - Service nginx-ingress-controller deleted
 
 apiVersion: v1
 kind: Namespace
@@ -41,6 +41,7 @@ metadata:
   name: ingress-nginx-controller
   namespace: ingress-nginx
 data:
+  # Customized configuration
   enable-real-ip: "true"
   http-redirect-code: "301"
   log-format-escape-json: "true"
@@ -274,36 +275,17 @@ spec:
     app.kubernetes.io/component: controller
 ---
 # Source: ingress-nginx/templates/controller-service.yaml
-apiVersion: v1
-kind: Service
-metadata:
-  labels:
-    helm.sh/chart: ingress-nginx-3.34.0
-    app.kubernetes.io/name: ingress-nginx
-    app.kubernetes.io/instance: ingress-nginx
-    app.kubernetes.io/version: 0.48.1
-    app.kubernetes.io/managed-by: Helm
-    app.kubernetes.io/component: controller
-  name: ingress-nginx-controller
-  namespace: ingress-nginx
-spec:
-  type: LoadBalancer
-  externalTrafficPolicy: Local
-  ports:
-    - name: http
-      port: 80
-      protocol: TCP
-      targetPort: http
-    - name: https
-      port: 443
-      protocol: TCP
-      targetPort: https
-  selector:
-    app.kubernetes.io/name: ingress-nginx
-    app.kubernetes.io/instance: ingress-nginx
-    app.kubernetes.io/component: controller
+# Deleted. See below
 ---
 # Source: ingress-nginx/templates/controller-deployment.yaml
+# Has hostNetwork: true so the pod listens to http(s) traffic on the host.
+# Source IPs of requests are preserved, no GCP load balancer is needed.
+# In GCP you must configure firewall rules to allow tcp traffic to ports 80 and 443 to the deployment target VMs.
+# Must be deployed to an "ingress" node pool with no other pods (except kube-proxy and fluentd-gcp).
+# This is done by labelling the node pool by "ingress" and tainting the pool by
+# key = ingress, value = true, effect = NO_EXECUTE.
+# This deployment has nodeSelector and tolerations that allow it to be deployed in the "ingress" pool.
+# Source: https://charlieegan3.com/posts/2018-08-15-cheap-gke-cluster-zero-loadbalancers/
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -331,9 +313,11 @@ spec:
         app.kubernetes.io/instance: ingress-nginx
         app.kubernetes.io/component: controller
     spec:
+      # DNS policy and hostNetwork: true to listen to traffic to the host.
       dnsPolicy: ClusterFirstWithHostNet
       hostNetwork: true
       tolerations:
+        # Allow execution on the ingress pool. There should be no other deployments listening to http(s) requests.
         - effect: NoExecute
           key: ingress
           value: "true"
@@ -348,7 +332,8 @@ spec:
                   - /wait-shutdown
           args:
             - /nginx-ingress-controller
-            - --publish-service=$(POD_NAMESPACE)/ingress-nginx-controller
+            # No service. See above.
+            # - --publish-service=$(POD_NAMESPACE)/ingress-nginx-controller
             - --election-id=ingress-controller-leader
             - --ingress-class=nginx
             - --configmap=$(POD_NAMESPACE)/ingress-nginx-controller
@@ -409,11 +394,14 @@ spec:
               mountPath: /usr/local/certificates/
               readOnly: true
           resources:
+            # Request less memory and CPU in our small cluster.
             requests:
               cpu: 10m
               memory: 90Mi
       nodeSelector:
         kubernetes.io/os: linux
+        # Should execute in the ingress node "pool" (one node).
+        ingress: "true"
       serviceAccountName: ingress-nginx
       terminationGracePeriodSeconds: 300
       volumes:
