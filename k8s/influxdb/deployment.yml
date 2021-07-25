@@ -22,6 +22,19 @@ spec:
       labels:
         app: influxdb
     spec:
+      initContainers:
+        - name: pre-start
+          image: busybox
+          command: [ 'sh', '-c', 'cp /read-only-config/* /etc/influxdb2/' ]
+          volumeMounts:
+            - name: read-only-config
+              mountPath: /read-only-config
+            - name: config
+              mountPath: /etc/influxdb2
+          resources:
+            requests:
+              cpu: "0"
+              memory: "0"
       containers:
         - name: influxdb
           image: influxdb:2.0.7-alpine
@@ -70,6 +83,8 @@ spec:
         - name: data
           persistentVolumeClaim:
             claimName: influxdb2
-        - name: config
+        - name: read-only-config
           configMap:
             name: influxdb2
+        - name: config
+          emptyDir: {}
