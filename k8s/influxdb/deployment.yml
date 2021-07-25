@@ -22,6 +22,20 @@ spec:
       labels:
         app: influxdb
     spec:
+      tolerations:
+        - effect: NoExecute
+          key: highmem
+          value: "true"
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - preference:
+                matchExpressions:
+                  - key: highmem
+                    operator: In
+                    values:
+                      - "true"
+              weight: 1
       initContainers:
         - name: pre-start
           image: busybox
