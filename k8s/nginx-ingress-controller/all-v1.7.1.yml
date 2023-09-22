@@ -414,7 +414,7 @@ spec:
         # Allow execution on the ingress pool. There should be no other deployments listening to http(s) requests.
         - effect: NoExecute
           key: ingress
-          value: "true"
+          operator: Exists
       containers:
         - args:
             - /nginx-ingress-controller
@@ -480,7 +480,7 @@ spec:
           # Request less memory and CPU in our small cluster.
             requests:
               cpu: 10m
-              memory: 90Mi
+              memory: 80Mi
           securityContext:
             allowPrivilegeEscalation: true
             capabilities:
@@ -496,7 +496,7 @@ spec:
       nodeSelector:
         kubernetes.io/os: linux
          # Should execute in the ingress node "pool" (one node).
-        ingress: "true"
+        ingress: ingress
       serviceAccountName: ingress-nginx
       terminationGracePeriodSeconds: 300
       volumes:
