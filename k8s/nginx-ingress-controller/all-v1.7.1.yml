@@ -376,7 +376,7 @@ spec:
 # In GCP you must configure firewall rules to allow tcp traffic to ports 80 and 443 to the deployment target VMs.
 # Must be deployed to an "ingress" node pool with no other pods (except kube-proxy and fluentd-gcp).
 # This is done by labelling the node pool by "ingress" and tainting the pool by
-# key = ingress, value = true, effect = NO_EXECUTE.
+# key = ingress, value = ingress, effect = NO_EXECUTE.
 # This deployment has nodeSelector and tolerations that allow it to be deployed in the "ingress" pool.
 # Source: https://charlieegan3.com/posts/2018-08-15-cheap-gke-cluster-zero-loadbalancers/
 apiVersion: apps/v1
@@ -412,9 +412,10 @@ spec:
       hostNetwork: true
       tolerations:
         # Allow execution on the ingress pool. There should be no other deployments listening to http(s) requests.
-        - effect: NoExecute
-          key: ingress
-          operator: Exists
+        - key: 'ingress'
+          value: 'ingress'
+          operator: 'Equal'
+          effect: 'NoExecute'
       containers:
         - args:
             - /nginx-ingress-controller
@@ -477,7 +478,7 @@ spec:
             successThreshold: 1
             timeoutSeconds: 1
           resources:
-          # Request less memory and CPU in our small cluster.
+            # Request less memory and CPU in our small cluster.
             requests:
               cpu: 10m
               memory: 80Mi
@@ -496,7 +497,7 @@ spec:
       nodeSelector:
         kubernetes.io/os: linux
          # Should execute in the ingress node "pool" (one node).
-        ingress: ingress
+        ingress: 'ingress'
       serviceAccountName: ingress-nginx
       terminationGracePeriodSeconds: 300
       volumes:
