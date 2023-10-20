@@ -417,18 +417,13 @@ spec:
           operator: 'Equal'
           effect: 'NoExecute'
       affinity:
-        # Deploy pods in the node that has k8s label ingress: ingress or ingress: true.
-        # GKE currently seems to have a bug in applying node pools' Kubernetes labels to nodes:
-        # It applies the previous value of the node pool's k8s label, so we have them both here.
+        # Deploy pods in the node that has k8s label ingress (any value).
         nodeAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
             nodeSelectorTerms:
               - matchExpressions:
                   - key: ingress
-                    operator: In
-                    values:
-                      - 'ingress'
-                      - 'true'
+                    operator: Exists
       containers:
         - args:
             - /nginx-ingress-controller
