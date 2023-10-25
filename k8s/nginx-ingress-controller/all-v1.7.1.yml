@@ -417,13 +417,16 @@ spec:
           operator: 'Equal'
           effect: 'NoExecute'
       affinity:
-        # Deploy pods in the node that has k8s label ingress (any value).
+        # Deploy pods in the micro pool node. Would use a custom label but GKE currently has bug
+        # with applying node pool's labels to spot node instances.
         nodeAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
             nodeSelectorTerms:
               - matchExpressions:
-                  - key: ingress
-                    operator: Exists
+                  - key: cloud.google.com/gke-nodepool
+                    operator: In
+                    values:
+                      - ingress-e2-micro-pool
       containers:
         - args:
             - /nginx-ingress-controller
