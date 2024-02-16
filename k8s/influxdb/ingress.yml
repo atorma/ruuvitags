@@ -12,10 +12,13 @@ spec:
     - host: influxdb.atorma.fi
       http:
         paths:
-          - backend:
-              serviceName: influxdb
-              servicePort: 8086
-            path: /
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: influxdb
+                port:
+                  number: 8086
   tls:
     - hosts:
         - influxdb.atorma.fi
