@@ -6,36 +6,26 @@ metadata:
 spec:
   acme:
     server: https://acme-v02.api.letsencrypt.org/directory
-    # email: redacted
+    #email: redacted
     privateKeySecretRef:
       name: letsencrypt-prod
     solvers:
-    - http01:
-        ingress:
-          class: nginx
+      - dns01:
+          cloudDNS:
+            #project: redacted
+            serviceAccountSecretRef:
+              name: clouddns-dns01-solver-svc-acct
+              key: key.json
 ---
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
-  name: grafana-certificate
+  name: atorma-fi-certificate
   namespace: default
 spec:
-  secretName: grafana-certificate-secret
+  secretName: atorma-fi-certificate-secret
   dnsNames:
-  - grafana.atorma.fi
-  issuerRef:
-    name: letsencrypt-prod
-    kind: ClusterIssuer
----
-apiVersion: cert-manager.io/v1
-kind: Certificate
-metadata:
-  name: influxdb-certificate
-  namespace: default
-spec:
-  secretName: influxdb-certificate-secret
-  dnsNames:
-  - influxdb.atorma.fi
+    - "*.atorma.fi"
   issuerRef:
     name: letsencrypt-prod
     kind: ClusterIssuer
