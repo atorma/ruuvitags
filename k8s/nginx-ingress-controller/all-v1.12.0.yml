@@ -328,7 +328,7 @@ data:
   log-format-escape-json: "true"
   log-format-upstream: '{"timestamp": "$time_iso8601", "requestID": "$req_id", "proxyUpstreamName":
     "$proxy_upstream_name", "upstreamStatus": "$upstream_status", "upstreamAddr":
-    "$upstream_addr", "httpRequest":{"requestMethod": "$request_method", "requestUrl":
+    "$upstream_addr", "countryCode": "$geoip2_country_code", "httpRequest":{"requestMethod": "$request_method", "requestUrl":
     "$host$request_uri", "status": $status, "requestSize": "$request_length", "responseSize":
     "$upstream_response_length", "userAgent": "$http_user_agent", "remoteIp": "$remote_addr",
     "referer": "$http_referer", "latency": "$upstream_response_time s", "protocol":
@@ -336,6 +336,7 @@ data:
   enable-modsecurity: "true"
   enable-owasp-modsecurity-crs: "true"
   use-gzip: "true"
+  use-geoip2: "true"
 kind: ConfigMap
 metadata:
   labels:
@@ -442,6 +443,9 @@ spec:
             - --validating-webhook=:8443
             - --validating-webhook-certificate=/usr/local/certificates/cert
             - --validating-webhook-key=/usr/local/certificates/key
+            # Custom GeoIP config flags
+            - --maxmind-edition-ids=GeoLite2-Country
+            - --maxmind-license-key=$(MAXMIND_LICENSE_KEY)
           env:
             - name: POD_NAME
               valueFrom:
@@ -453,6 +457,12 @@ spec:
                   fieldPath: metadata.namespace
             - name: LD_PRELOAD
               value: /usr/local/lib/libmimalloc.so
+            # Custom secret
+            - name: MAXMIND_LICENSE_KEY
+              valueFrom:
+                secretKeyRef:
+                  key: key
+                  name: maxmind-license-key
           image: registry.k8s.io/ingress-nginx/controller:v1.12.0@sha256:e6b8de175acda6ca913891f0f727bca4527e797d52688cbe9fec9040d6f6b6fa
           imagePullPolicy: IfNotPresent
           lifecycle:
