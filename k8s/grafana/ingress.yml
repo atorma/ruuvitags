@@ -22,4 +22,4 @@ spec:
   tls:
     - hosts:
         - grafana.atorma.fi
-      secretName: atorma-fi-certificate-secret
+      secretName: grafana-certificate-secret

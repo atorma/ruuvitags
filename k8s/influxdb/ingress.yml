@@ -22,4 +22,4 @@ spec:
   tls:
     - hosts:
         - influxdb.atorma.fi
-      secretName: atorma-fi-certificate-secret
+      secretName: influxdb-certificate-secret
