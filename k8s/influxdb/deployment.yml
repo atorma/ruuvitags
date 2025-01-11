@@ -51,7 +51,7 @@ spec:
               memory: "0"
       containers:
         - name: influxdb
-          image: influxdb:2.0.7-alpine
+          image: influxdb:2.7.11-alpine
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8086
@@ -88,6 +88,9 @@ spec:
               name: data
             - mountPath: /etc/influxdb2
               name: config
+          env:
+            - name: INFLUXD_UI_DISABLED
+              value: "true"
       securityContext:
         runAsUser: 1000
         runAsGroup: 1000
