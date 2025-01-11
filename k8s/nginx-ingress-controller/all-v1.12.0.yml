@@ -353,6 +353,14 @@ data:
       SR 1; # Suriname
       UY 1; # Uruguay
       VE 1; # Venezuela
+      MX 1; # Mexico
+      GT 1; # Guatemala
+      BZ 1; # Belize
+      SV 1; # El Salvador
+      HN 1; # Honduras
+      NI 1; # Nicaragua
+      CR 1; # Costa Rica
+      PA 1; # Panama
       
       CN 1; # China
     }
