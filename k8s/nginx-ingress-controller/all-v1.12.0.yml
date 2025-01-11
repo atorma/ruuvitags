@@ -335,7 +335,6 @@ data:
     "$server_protocol"}}'
   enable-modsecurity: "true"
   enable-owasp-modsecurity-crs: "true"
-  use-gzip: "true"
   enable-brotli: "true"
   use-geoip2: "true"
   http-snippet: |
