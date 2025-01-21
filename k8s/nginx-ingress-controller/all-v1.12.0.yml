@@ -403,6 +403,23 @@ spec:
     app.kubernetes.io/name: ingress-nginx
   type: ClusterIP
 ---
+# Custom PVC for geoIP data
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  labels:
+    app.kubernetes.io/name: ingress-nginx
+  name: ingress-nginx-geoip-data
+  namespace: ingress-nginx
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 100Mi
+  storageClassName: pd-standard-retained
+  volumeMode: Filesystem
+---
 # Has hostNetwork: true so the pod listens to http(s) traffic on the host.
 # Source IPs of requests are preserved, no GCP load balancer is needed.
 # In GCP you must configure firewall rules to allow tcp traffic to ports 80 and 443 to the deployment target VMs.
@@ -463,6 +480,17 @@ spec:
                     operator: In
                     values:
                       - ingress-e2-micro-pool
+      initContainers:
+        - name: pre-start
+          image: busybox
+          command: [ 'sh', '-c', 'chown -R 101:82 /etc/ingress-controller/geoip' ]
+          volumeMounts:
+            - name: geoip
+              mountPath: /etc/ingress-controller/geoip
+          resources:
+            requests:
+              cpu: "0"
+              memory: "0"
       containers:
         - args:
             - /nginx-ingress-controller
@@ -555,6 +583,8 @@ spec:
             - mountPath: /usr/local/certificates/
               name: webhook-cert
               readOnly: true
+            - mountPath: /etc/ingress-controller/geoip
+              name: geoip
       nodeSelector:
         kubernetes.io/os: linux
       serviceAccountName: ingress-nginx
@@ -563,6 +593,9 @@ spec:
         - name: webhook-cert
           secret:
             secretName: ingress-nginx-admission
+        - name: geoip
+          persistentVolumeClaim:
+            claimName: ingress-nginx-geoip-data
 ---
 apiVersion: batch/v1
 kind: Job
