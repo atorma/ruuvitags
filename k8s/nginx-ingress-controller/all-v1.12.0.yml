@@ -337,38 +337,38 @@ data:
   enable-owasp-modsecurity-crs: "true"
   enable-brotli: "true"
   use-geoip2: "true"
-  http-snippet: |
-    map $geoip2_country_code $block_country {
-      default 0; # Allow by default
-      
-      AR 1; # Argentina
-      BO 1; # Bolivia
-      BR 1; # Brazil
-      CL 1; # Chile
-      CO 1; # Colombia
-      EC 1; # Ecuador
-      GY 1; # Guyana
-      PY 1; # Paraguay
-      PE 1; # Peru
-      SR 1; # Suriname
-      UY 1; # Uruguay
-      VE 1; # Venezuela
-      MX 1; # Mexico
-      GT 1; # Guatemala
-      BZ 1; # Belize
-      SV 1; # El Salvador
-      HN 1; # Honduras
-      NI 1; # Nicaragua
-      CR 1; # Costa Rica
-      PA 1; # Panama
-      
-      CN 1; # China
-    }
-    
-  server-snippet: |
-    if ($block_country) {
-      return 403; # Block with HTTP 403 Forbidden
-    }
+#  http-snippet: |
+#    map $geoip2_country_code $block_country {
+#      default 0; # Allow by default
+#
+#      AR 1; # Argentina
+#      BO 1; # Bolivia
+#      BR 1; # Brazil
+#      CL 1; # Chile
+#      CO 1; # Colombia
+#      EC 1; # Ecuador
+#      GY 1; # Guyana
+#      PY 1; # Paraguay
+#      PE 1; # Peru
+#      SR 1; # Suriname
+#      UY 1; # Uruguay
+#      VE 1; # Venezuela
+#      MX 1; # Mexico
+#      GT 1; # Guatemala
+#      BZ 1; # Belize
+#      SV 1; # El Salvador
+#      HN 1; # Honduras
+#      NI 1; # Nicaragua
+#      CR 1; # Costa Rica
+#      PA 1; # Panama
+#
+#      CN 1; # China
+#    }
+#
+#  server-snippet: |
+#    if ($block_country) {
+#      return 403; # Block with HTTP 403 Forbidden
+#    }
 kind: ConfigMap
 metadata:
   labels:
