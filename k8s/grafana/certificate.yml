@@ -1,0 +1,13 @@
+
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: grafana-certificate
+  namespace: default
+spec:
+  secretName: grafana-certificate-secret
+  dnsNames:
+  - grafana.atorma.fi
+  issuerRef:
+    name: letsencrypt-prod
+    kind: ClusterIssuer
